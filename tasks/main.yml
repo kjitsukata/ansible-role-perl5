@@ -14,3 +14,37 @@
     state: link
   tags: perl-build
 
+- name: Create perl directory for {{ pl_major_version }}
+  file:
+    path: /usr/local/bin/perl-{{ pl_major_version }}
+    state: directory
+    mode: 0755
+  tags: perl
+
+- name: Check perl version
+  shell: bash -lc "ls -al /usr/local/bin/perl-{{ pl_major_version }}/bin/perl{{ pl_minor_version }}"
+  register: plversion
+  failed_when: False
+  changed_when: False
+  tags: perl
+
+- name: Install perl {{ pl_minor_version }}
+  shell: bash -lc "/usr/local/bin/perl-build {{ pl_minor_version }} /usr/local/bin/perl-{{ pl_major_version }}"
+  when: plversion.rc != 0
+  tags: perl
+
+- name: Check perl binary
+  shell: bash -lc "ls /usr/local/bin/perl-{{ pl_major_version }}/bin/"
+  register: plbin
+  failed_when: False
+  changed_when: False
+  tags: perl
+
+- name: Create perl binary symbolic link to /usr/local/bin/
+  file:
+    src: /usr/local/bin/perl-{{ pl_major_version }}/bin/{{ item }}
+    dest: /usr/local/bin/{{ item }}
+    state: link
+  loop: "{{ plbin.stdout_lines }}"
+  tags: perl
+
