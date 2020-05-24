@@ -33,6 +33,45 @@
   when: plversion.rc != 0
   tags: perl
 
+- name: Create perl binary symbolic link to /usr/local/bin/
+  file:
+    src: /usr/local/bin/perl-{{ pl_major_version }}/bin/{{ item }}
+    dest: /usr/local/bin/{{ item }}
+    state: link
+  with_items:
+    - corelist
+    - cpan
+    - enc2xs
+    - encguess
+    - h2ph
+    - h2xs
+    - instmodsh
+    - json_pp
+    - libnetcfg
+    - perl
+    - perl5.30.2
+    - perlbug
+    - perldoc
+    - perlivp
+    - perlthanks
+    - piconv
+    - pl2pm
+    - pod2html
+    - pod2man
+    - pod2text
+    - pod2usage
+    - podchecker
+    - podselect
+    - prove
+    - ptar
+    - ptardiff
+    - ptargrep
+    - shasum
+    - splain
+    - xsubpp
+    - zipdetails
+  tags: perl
+
 - name: Check cpanm
   shell: bash -lc "ls -al /usr/local/bin/perl-{{ pl_major_version }}/bin/cpanm"
   register: plcpanm
@@ -45,18 +84,10 @@
   when: plcpanm.rc != 0
   tags: perl-cpanm
 
-- name: Check perl binary
-  shell: bash -lc "ls /usr/local/bin/perl-{{ pl_major_version }}/bin/"
-  register: plbin
-  failed_when: False
-  changed_when: False
-  tags: perl
-
-- name: Create perl binary symbolic link to /usr/local/bin/
+- name: Create cpanm symbolic link to /usr/local/bin/
   file:
-    src: /usr/local/bin/perl-{{ pl_major_version }}/bin/{{ item }}
-    dest: /usr/local/bin/{{ item }}
+    src: /usr/local/bin/perl-{{ pl_major_version }}/bin/cpanm
+    dest: /usr/local/bin/cpanm
     state: link
-  loop: "{{ plbin.stdout_lines }}"
-  tags: perl
+  tags: perl-cpanm
 
