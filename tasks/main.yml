@@ -33,6 +33,18 @@
   when: plversion.rc != 0
   tags: perl
 
+- name: Check cpanm
+  shell: bash -lc "ls -al /usr/local/bin/perl-{{ pl_major_version }}/bin/cpanm"
+  register: plcpanm
+  failed_when: False
+  changed_when: False
+  tags: perl-cpanm
+
+- name: Install cpanm
+  shell: bash -lc "curl -L http://cpanmin.us | perl - --sudo App::cpanminus"
+  when: plcpanm.rc != 0
+  tags: perl-cpanm
+
 - name: Check perl binary
   shell: bash -lc "ls /usr/local/bin/perl-{{ pl_major_version }}/bin/"
   register: plbin
