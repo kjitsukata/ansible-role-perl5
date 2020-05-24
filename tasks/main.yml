@@ -1,0 +1,16 @@
+---
+- name: Install perl-build
+  git:
+    clone: yes
+    repo: https://github.com/tokuhirom/Perl-Build.git
+    dest: /usr/local/src/perl-build
+  changed_when: False
+  tags: perl-build
+
+- name: Create perl-build symbolic link to /usr/local/bin/
+  file:
+    src: /usr/local/src/perl-build/perl-build
+    dest: /usr/local/bin/perl-build
+    state: link
+  tags: perl-build
+
