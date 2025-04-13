@@ -1,4 +1,10 @@
 ---
+- name: Install require package for Ubuntu
+  apt:
+    name: build-essential
+    state: present
+  when: ansible_distribution in ['Ubuntu']
+
 - name: Install perl-build
   git:
     clone: yes
@@ -12,30 +18,31 @@
     src: /usr/local/src/perl-build/perl-build
     dest: /usr/local/bin/perl-build
     state: link
+  when: not ansible_check_mode
   tags: perl-build
 
-- name: Create perl directory for {{ pl_major_version }}
+- name: Create perl directory for {{ perl_version }}
   file:
-    path: /usr/local/bin/perl-{{ pl_major_version }}
+    path: /usr/local/bin/perl-{{ perl_version }}
     state: directory
     mode: 0755
   tags: perl
 
 - name: Check perl version
-  shell: bash -lc "ls -al /usr/local/bin/perl-{{ pl_major_version }}/bin/perl{{ pl_minor_version }}"
+  shell: bash -lc "ls -al /usr/local/bin/perl-{{ perl_version }}/bin/perl{{ perl_version }}"
   register: plversion
   failed_when: False
   changed_when: False
   tags: perl
 
-- name: Install perl {{ pl_minor_version }}
-  shell: bash -lc "/usr/local/bin/perl-build {{ pl_minor_version }} /usr/local/bin/perl-{{ pl_major_version }}"
+- name: Install perl {{ perl_version }}
+  shell: bash -lc "/usr/local/bin/perl-build {{ perl_version }} /usr/local/bin/perl-{{ perl_version }}"
   when: plversion.rc != 0
   tags: perl
 
 - name: Create perl binary symbolic link to /usr/local/bin/
   file:
-    src: /usr/local/bin/perl-{{ pl_major_version }}/bin/{{ item }}
+    src: /usr/local/bin/perl-{{ perl_version }}/bin/{{ item }}
     dest: /usr/local/bin/{{ item }}
     state: link
   with_items:
@@ -49,7 +56,7 @@
     - json_pp
     - libnetcfg
     - perl
-    - perl5.30.2
+    - perl{{ perl_version }}
     - perlbug
     - perldoc
     - perlivp
@@ -61,33 +68,34 @@
     - pod2text
     - pod2usage
     - podchecker
-    - podselect
     - prove
     - ptar
     - ptardiff
     - ptargrep
     - shasum
     - splain
+    - streamzip
     - xsubpp
     - zipdetails
+  when: not ansible_check_mode
   tags: perl
 
 - name: Check cpanm
-  shell: bash -lc "ls -al /usr/local/bin/perl-{{ pl_major_version }}/bin/cpanm"
+  shell: bash -lc "ls -al /usr/local/bin/perl-{{ perl_version }}/bin/cpanm"
   register: plcpanm
   failed_when: False
   changed_when: False
   tags: perl-cpanm
 
 - name: Install cpanm
-  shell: bash -lc "curl -L http://cpanmin.us | perl - --sudo App::cpanminus"
+  shell: bash -lc "curl -L http://cpanmin.us | /usr/local/bin/perl - --sudo App::cpanminus"
   when: plcpanm.rc != 0
   tags: perl-cpanm
 
 - name: Create cpanm symbolic link to /usr/local/bin/
   file:
-    src: /usr/local/bin/perl-{{ pl_major_version }}/bin/cpanm
+    src: /usr/local/bin/perl-{{ perl_version }}/bin/cpanm
     dest: /usr/local/bin/cpanm
     state: link
+  when: not ansible_check_mode
   tags: perl-cpanm
-
